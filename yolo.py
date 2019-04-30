@@ -20,11 +20,23 @@ import os
 from keras.utils import multi_gpu_model
 
 class YOLO(object):
+    # _defaults = {
+    #     "model_path": 'model_data/yolo.h5',
+    #     "anchors_path": 'model_data/yolo_anchors.txt',
+    #     "classes_path": 'model_data/coco_classes.txt',
+    #     "score" : 0.3,
+    #     "iou" : 0.45,
+    #     "model_image_size" : (416, 416),
+    #     "gpu_num" : 1,
+    # }
+
+    # ../small_dataset_1/main_camera/main-2019-04-29T14:38:27.900033.jpg
+
     _defaults = {
-        "model_path": 'model_data/yolo.h5',
+        "model_path": 'logs/000/ep048-loss27.493-val_loss25.985.h5',
         "anchors_path": 'model_data/yolo_anchors.txt',
-        "classes_path": 'model_data/coco_classes.txt',
-        "score" : 0.3,
+        "classes_path": 'model_data/lgsvl_classes.txt',
+        "score" : 0.015,
         "iou" : 0.45,
         "model_image_size" : (416, 416),
         "gpu_num" : 1,
@@ -47,7 +59,8 @@ class YOLO(object):
         config.gpu_options.allow_growth = True
         sess = tf.Session(config=config)
 
-        self.sess = K.set_session(sess)
+        K.set_session(sess)
+        self.sess = K.get_session()
         self.boxes, self.scores, self.classes = self.generate()
 
     def _get_class(self):

@@ -4,6 +4,7 @@ Retrain the YOLO model for your own dataset.
 
 import numpy as np
 import keras.backend as K
+import tensorflow as tf
 from keras.layers import Input, Lambda
 from keras.models import Model
 from keras.optimizers import Adam
@@ -14,9 +15,9 @@ from yolo3.utils import get_random_data
 
 
 def _main():
-    annotation_path = 'train.txt'
-    log_dir = 'logs/000/'
-    classes_path = 'model_data/voc_classes.txt'
+    annotation_path = '../small_dataset_1/gt_2d/gt_2d_yolo3_annotations.txt'
+    log_dir = 'logs/001/'
+    classes_path = 'model_data/lgsvl_classes.txt'
     anchors_path = 'model_data/yolo_anchors.txt'
     class_names = get_classes(classes_path)
     num_classes = len(class_names)
@@ -54,7 +55,7 @@ def _main():
             # use custom yolo_loss Lambda layer.
             'yolo_loss': lambda y_true, y_pred: y_pred})
 
-        batch_size = 32
+        batch_size = 64
         print('Train on {} samples, val on {} samples, with batch size {}.'.format(num_train, num_val, batch_size))
         model.fit_generator(data_generator_wrapper(lines[:num_train], batch_size, input_shape, anchors, num_classes),
                 steps_per_epoch=max(1, num_train//batch_size),
@@ -105,7 +106,11 @@ def get_anchors(anchors_path):
 def create_model(input_shape, anchors, num_classes, load_pretrained=True, freeze_body=2,
             weights_path='model_data/yolo_weights.h5'):
     '''create the training model'''
-    K.clear_session() # get a new session
+    config = tf.ConfigProto()
+    config.gpu_options.allow_growth = True
+    sess = tf.Session(config=config)
+    K.set_session(sess)
+    # K.clear_session() # get a new session
     image_input = Input(shape=(None, None, 3))
     h, w = input_shape
     num_anchors = len(anchors)
@@ -135,7 +140,12 @@ def create_model(input_shape, anchors, num_classes, load_pretrained=True, freeze
 def create_tiny_model(input_shape, anchors, num_classes, load_pretrained=True, freeze_body=2,
             weights_path='model_data/tiny_yolo_weights.h5'):
     '''create the training model, for Tiny YOLOv3'''
-    K.clear_session() # get a new session
+    config = tf.ConfigProto()
+    config.gpu_options.allow_growth = True
+    sess = tf.Session(config=config)
+
+    K.set_session(sess)
+    # K.clear_session() # get a new session
     image_input = Input(shape=(None, None, 3))
     h, w = input_shape
     num_anchors = len(anchors)
