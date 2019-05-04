@@ -1,7 +1,7 @@
 import csv
 
-input_path = "/home/deepaktalwardt/Dropbox/SJSU/Semesters/Spring 2019/CMPE 297/datasets/small_dataset_1/gt_2d/gt_2d_yolo2_annotations.csv"
-output_path = "/home/deepaktalwardt/Dropbox/SJSU/Semesters/Spring 2019/CMPE 297/datasets/small_dataset_1/gt_2d/gt_2d_yolo3_annotations.txt"
+input_path = "/home/deepaktalwardt/Dropbox/SJSU/Semesters/Spring 2019/CMPE 297/datasets/large_dataset_1/gt_2d/gt_2d_yolo2_annotations.csv"
+output_path = "/home/deepaktalwardt/Dropbox/SJSU/Semesters/Spring 2019/CMPE 297/datasets/large_dataset_1/gt_2d/gt_2d_yolo3_annotations.txt"
 
 def convert_annotations(input_path, output_path):
 
@@ -11,7 +11,7 @@ def convert_annotations(input_path, output_path):
             line_split = line.split(';')
             line_2_col = line_split[2].strip('\n')
             line_2_col.replace('"', '')
-            line_arr = ['../small_dataset_1/main_camera/' + line_split[0], line_2_col]
+            line_arr = ['../large_dataset_1/main_camera/' + line_split[0], line_2_col]
             input_list.append(line_arr)
 
     with open(output_path, 'a') as f_out:

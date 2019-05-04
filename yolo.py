@@ -19,6 +19,34 @@ from yolo3.utils import letterbox_image
 import os
 from keras.utils import multi_gpu_model
 
+def freeze_session(session, keep_var_names=None, output_names=None, clear_devices=True):
+    """
+    Freezes the state of a session into a pruned computation graph.
+
+    Creates a new computation graph where variable nodes are replaced by
+    constants taking their current value in the session. The new graph will be
+    pruned so subgraphs that are not necessary to compute the requested
+    outputs are removed.
+    @param session The TensorFlow session to be frozen.
+    @param keep_var_names A list of variable names that should not be frozen,
+                          or None to freeze all the variables in the graph.
+    @param output_names Names of the relevant graph outputs.
+    @param clear_devices Remove the device directives from the graph for better portability.
+    @return The frozen graph definition.
+    """
+    graph = session.graph
+    with graph.as_default():
+        freeze_var_names = list(set(v.op.name for v in tf.global_variables()).difference(keep_var_names or []))
+        output_names = output_names or []
+        output_names += [v.op.name for v in tf.global_variables()]
+        input_graph_def = graph.as_graph_def()
+        if clear_devices:
+            for node in input_graph_def.node:
+                node.device = ""
+        frozen_graph = tf.graph_util.convert_variables_to_constants(
+            session, input_graph_def, output_names, freeze_var_names)
+        return frozen_graph
+
 class YOLO(object):
     # _defaults = {
     #     "model_path": 'model_data/yolo.h5',
@@ -30,15 +58,19 @@ class YOLO(object):
     #     "gpu_num" : 1,
     # }
 
-    # ../small_dataset_1/main_camera/main-2019-04-29T14:38:27.900033.jpg
+    # ../large_dataset_1/main_camera/main-2019-04-30T21:52:08.393431.jpg
+    # ../large_dataset_1/main_camera/main-2019-04-30T21:52:07.501026.jpg
+    # ../large_dataset_1/main_camera/main-2019-04-30T21:53:53.659699.jpg
+    # ../large_dataset_1/main_camera/main-2019-04-30T21:55:04.114199.jpg
+    # ../large_dataset_1/main_camera/main-2019-04-30T21:55:30.765495.jpg
 
     _defaults = {
-        "model_path": 'logs/000/ep048-loss27.493-val_loss25.985.h5',
-        "anchors_path": 'model_data/yolo_anchors.txt',
+        "model_path": 'logs/large_dataset_1_training_2/000ep095-loss6.275-val_loss6.316.h5',
+        "anchors_path": 'model_data/lgsvl_anchors.txt',
         "classes_path": 'model_data/lgsvl_classes.txt',
-        "score" : 0.015,
-        "iou" : 0.45,
-        "model_image_size" : (416, 416),
+        "score" : 0.1,
+        "iou" : 0.1,
+        "model_image_size" : (640, 640),
         "gpu_num" : 1,
     }
 
@@ -57,9 +89,11 @@ class YOLO(object):
 
         config = tf.ConfigProto()
         config.gpu_options.allow_growth = True
+        config.gpu_options.per_process_gpu_memory_fraction = 0.2
         sess = tf.Session(config=config)
 
         K.set_session(sess)
+        # K.set_learning_phase(0)
         self.sess = K.get_session()
         self.boxes, self.scores, self.classes = self.generate()
 
@@ -117,6 +151,24 @@ class YOLO(object):
                 len(self.class_names), self.input_image_shape,
                 score_threshold=self.score, iou_threshold=self.iou)
         return boxes, scores, classes
+    
+    def save_as_pb(self):
+        print("Inputs: ")
+        print(self.yolo_model.inputs)
+        print("Outputs: ")
+        print([out.op.name for out in self.yolo_model.outputs])
+
+        frozen_graph = freeze_session(self.sess,
+                              output_names=[out.op.name for out in self.yolo_model.outputs])
+        
+        tf.train.write_graph(frozen_graph, 'logs/large_dataset_1_training_2/', 
+                            'frozen_model_1.pb', as_text=False)
+    
+    def get_inputs_outputs(self):
+        print("Inputs: ")
+        print(self.yolo_model.inputs)
+        print("Outputs: ")
+        print([out.op.name for out in self.yolo_model.outputs])
 
     def detect_image(self, image):
         start = timer()
