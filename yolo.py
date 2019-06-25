@@ -48,22 +48,6 @@ def freeze_session(session, keep_var_names=None, output_names=None, clear_device
         return frozen_graph
 
 class YOLO(object):
-    # _defaults = {
-    #     "model_path": 'model_data/yolo.h5',
-    #     "anchors_path": 'model_data/yolo_anchors.txt',
-    #     "classes_path": 'model_data/coco_classes.txt',
-    #     "score" : 0.3,
-    #     "iou" : 0.45,
-    #     "model_image_size" : (416, 416),
-    #     "gpu_num" : 1,
-    # }
-
-    # ../large_dataset_1/main_camera/main-2019-04-30T21:52:08.393431.jpg
-    # ../large_dataset_1/main_camera/main-2019-04-30T21:52:07.501026.jpg
-    # ../large_dataset_1/main_camera/main-2019-04-30T21:53:53.659699.jpg
-    # ../large_dataset_1/main_camera/main-2019-04-30T21:55:04.114199.jpg
-    # ../large_dataset_1/main_camera/main-2019-04-30T21:55:30.765495.jpg
-
     _defaults = {
         "model_path": 'logs/large_dataset_1_training_2/000ep095-loss6.275-val_loss6.316.h5',
         "anchors_path": 'model_data/lgsvl_anchors.txt',
@@ -93,8 +77,8 @@ class YOLO(object):
         sess = tf.Session(config=config)
 
         K.set_session(sess)
-        # K.set_learning_phase(0)
-        self.sess = K.get_session()
+
+        self.sess = K.get_session()   
         self.boxes, self.scores, self.classes = self.generate()
 
     def _get_class(self):
@@ -237,47 +221,63 @@ class YOLO(object):
         print(end - start)
         return image
 
+    def get_detections(self, image):
+        # start = timer()
+
+        if self.model_image_size != (None, None):
+            assert self.model_image_size[0]%32 == 0, 'Multiples of 32 required'
+            assert self.model_image_size[1]%32 == 0, 'Multiples of 32 required'
+            boxed_image = letterbox_image(image, tuple(reversed(self.model_image_size)))
+        else:
+            new_image_size = (image.width - (image.width % 32),
+                              image.height - (image.height % 32))
+            boxed_image = letterbox_image(image, new_image_size)
+        image_data = np.array(boxed_image, dtype='float32')
+
+        # print(image_data.shape)
+        image_data /= 255.
+        image_data = np.expand_dims(image_data, 0)  # Add batch dimension.
+
+        out_boxes, out_scores, out_classes = self.sess.run(
+            [self.boxes, self.scores, self.classes],
+            feed_dict={
+                self.yolo_model.input: image_data,
+                # self.input_image_shape: [image.size[1], image.size[0]],
+                self.input_image_shape: [image.size[1], image.size[0]]
+                # K.learning_phase(): 0
+            })
+
+        # print('Found {} boxes for {}'.format(len(out_boxes), 'img'))
+
+        objects = []
+
+        for i, c in reversed(list(enumerate(out_classes))):
+            predicted_class = self.class_names[c]
+            box = out_boxes[i]
+            score = out_scores[i]
+
+            label = '{} {:.2f}'.format(predicted_class, score)
+
+            top, left, bottom, right = box
+            top = max(0, np.floor(top + 0.5).astype('int32'))
+            left = max(0, np.floor(left + 0.5).astype('int32'))
+            bottom = min(image.size[1], np.floor(bottom + 0.5).astype('int32'))
+            right = min(image.size[0], np.floor(right + 0.5).astype('int32'))
+
+            obj = {}
+            obj['label'] = predicted_class
+            obj['score'] = score
+            obj['x'] = left
+            obj['y'] = top
+            obj['width'] = right - left
+            obj['height'] = bottom - top
+
+            objects.append(obj)
+        
+        # end = timer()
+        # print(end - start)
+        return objects
+
+
     def close_session(self):
         self.sess.close()
-
-def detect_video(yolo, video_path, output_path=""):
-    import cv2
-    vid = cv2.VideoCapture(video_path)
-    if not vid.isOpened():
-        raise IOError("Couldn't open webcam or video")
-    video_FourCC    = int(vid.get(cv2.CAP_PROP_FOURCC))
-    video_fps       = vid.get(cv2.CAP_PROP_FPS)
-    video_size      = (int(vid.get(cv2.CAP_PROP_FRAME_WIDTH)),
-                        int(vid.get(cv2.CAP_PROP_FRAME_HEIGHT)))
-    isOutput = True if output_path != "" else False
-    if isOutput:
-        print("!!! TYPE:", type(output_path), type(video_FourCC), type(video_fps), type(video_size))
-        out = cv2.VideoWriter(output_path, video_FourCC, video_fps, video_size)
-    accum_time = 0
-    curr_fps = 0
-    fps = "FPS: ??"
-    prev_time = timer()
-    while True:
-        return_value, frame = vid.read()
-        image = Image.fromarray(frame)
-        image = yolo.detect_image(image)
-        result = np.asarray(image)
-        curr_time = timer()
-        exec_time = curr_time - prev_time
-        prev_time = curr_time
-        accum_time = accum_time + exec_time
-        curr_fps = curr_fps + 1
-        if accum_time > 1:
-            accum_time = accum_time - 1
-            fps = "FPS: " + str(curr_fps)
-            curr_fps = 0
-        cv2.putText(result, text=fps, org=(3, 15), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
-                    fontScale=0.50, color=(255, 0, 0), thickness=2)
-        cv2.namedWindow("result", cv2.WINDOW_NORMAL)
-        cv2.imshow("result", result)
-        if isOutput:
-            out.write(result)
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            break
-    yolo.close_session()
-
