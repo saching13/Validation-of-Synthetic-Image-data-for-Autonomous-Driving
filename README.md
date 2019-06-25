@@ -8,8 +8,6 @@ The original implementation comes from [qqwweee/keras-yolo3](https://github.com/
 
 Our YOLO3 detects 5 different micro-mobility vehicles from the images captured by the [lgsvl/simulator](https://github.com/lgsvl/simulator). The vehicles we are interested in detecting include scooters, hoverboards, skateboards, segways, and one-wheels.
 
----
-
 ## Quick Start
 
 1. Download pretrained weights [here](https://www.dropbox.com/s/a44ly3zd6bzmssw/2d-final-weights-keras-yolo3.h5?dl=0).
@@ -41,8 +39,6 @@ optional arguments:
 ### ROS
 If you are trying to run inferences on LGSVL simulators using ROS nodes, `get_detections` function in `yolo.py` returns 2D bounding box information.
 
----
-
 ## Training
 
 1. Generate your own annotation file and class names file.  
@@ -68,8 +64,6 @@ If you are trying to run inferences on LGSVL simulators using ROS nodes, `get_de
 
 [dataset2_link](https://www.dropbox.com/s/kt6hwfsa95v4hck/large_dataset_2.zip?dl=0)
 
----
-
 ## Results
 
 ### Image
@@ -77,3 +71,8 @@ If you are trying to run inferences on LGSVL simulators using ROS nodes, `get_de
 
 ### Video
 [![2D Perception of Micro-mobility Vehicles on LGSVL Simulator | CMPE 297 Spring 2019](docs/images/thumbnail.jpg)](https://www.youtube.com/watch?v=DwWY89dVGEw)
+
+## Collaborators
+* **Deepak Talwar** - (https://github.com/deepaktalwardt)
+* **Seung Won Lee** - (https://github.com/swdev1202)
+### This repository was originally developed for CMPE 297 - Autonomous Driving course at San Jose State University in Spring 2019.
