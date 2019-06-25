@@ -4,36 +4,30 @@
 
 ## Introduction
 
-A Keras implementation of YOLOv3 (Tensorflow backend) inspired by [allanzelener/YAD2K](https://github.com/allanzelener/YAD2K).
+The original implementation comes from [qqwweee/keras-yolo3](https://github.com/qqwweee/keras-yolo3).
 
+Our YOLO3 detects 5 different micro-mobility vehicles from the images captured by the [lgsvl/simulator](https://github.com/lgsvl/simulator). The vehicles we are interested in detecting include scooters, hoverboards, skateboards, segways, and one-wheels.
 
 ---
 
 ## Quick Start
 
-1. Download YOLOv3 weights from [YOLO website](http://pjreddie.com/darknet/yolo/).
-2. Convert the Darknet YOLO model to a Keras model.
+1. Download pretrained weights [here](https://www.dropbox.com/s/a44ly3zd6bzmssw/2d-final-weights-keras-yolo3.h5?dl=0).
+2. Move the downloaded .h5 file inside [model_data](model_data)
 3. Run YOLO detection.
-
 ```
-wget https://pjreddie.com/media/files/yolov3.weights
-python convert.py yolov3.cfg yolov3.weights model_data/yolo.h5
-python yolo_video.py [OPTIONS...] --image, for image detection mode, OR
-python yolo_video.py [video_path] [output_path (optional)]
+python inference.py [OPTIONS...] --image, for image detection mode
 ```
-
-For Tiny YOLOv3, just do in a similar way, just specify model path and anchor path with `--model model_file` and `--anchors anchor_file`.
+3. You will see 2D bounding boxes on images you pass in.
 
 ### Usage
-Use --help to see usage of yolo_video.py:
+Use --help to see usage of inference.py:
 ```
-usage: yolo_video.py [-h] [--model MODEL] [--anchors ANCHORS]
+usage: inference.py [-h] [--model MODEL] [--anchors ANCHORS]
                      [--classes CLASSES] [--gpu_num GPU_NUM] [--image]
-                     [--input] [--output]
 
-positional arguments:
-  --input        Video input path
-  --output       Video output path
+required arguments:
+  --image            Image detection mode
 
 optional arguments:
   -h, --help         show this help message and exit
@@ -43,11 +37,12 @@ optional arguments:
   --classes CLASSES  path to class definitions, default
                      model_data/coco_classes.txt
   --gpu_num GPU_NUM  Number of GPU to use, default 1
-  --image            Image detection mode, will ignore all positional arguments
 ```
----
 
-4. MultiGPU usage: use `--gpu_num N` to use N GPUs. It is passed to the [Keras multi_gpu_model()](https://keras.io/utils/#multi_gpu_model).
+### ROS
+If you are trying to run inferences on LGSVL simulators using ROS nodes, `get_detections` function in `yolo.py` returns 2D bounding box information.
+
+---
 
 ## Training
 
@@ -63,37 +58,17 @@ optional arguments:
     ...
     ```
 
-2. Make sure you have run `python convert.py -w yolov3.cfg yolov3.weights model_data/yolo_weights.h5`  
-    The file model_data/yolo_weights.h5 is used to load pretrained weights.
-
-3. Modify train.py and start training.  
+2. Modify train.py and start training.  
     `python train.py`  
-    Use your trained weights or checkpoint weights with command line option `--model model_file` when using yolo_video.py
+    Use your trained weights or checkpoint weights with command line option `--model model_file` when using `inference.py`
     Remember to modify class path or anchor path, with `--classes class_file` and `--anchors anchor_file`.
-
-If you want to use original pretrained weights for YOLOv3:  
-    1. `wget https://pjreddie.com/media/files/darknet53.conv.74`  
-    2. rename it as darknet53.weights  
-    3. `python convert.py -w darknet53.cfg darknet53.weights model_data/darknet53_weights.h5`  
-    4. use model_data/darknet53_weights.h5 in train.py
 
 ---
 
-## Some issues to know
+## Results
 
-1. The test environment is
-    - Python 3.5.2
-    - Keras 2.1.5
-    - tensorflow 1.6.0
+### Image
+![](docs/images/result.jpg)
 
-2. Default anchors are used. If you use your own anchors, probably some changes are needed.
-
-3. The inference result is not totally the same as Darknet but the difference is small.
-
-4. The speed is slower than Darknet. Replacing PIL with opencv may help a little.
-
-5. Always load pretrained weights and freeze layers in the first stage of training. Or try Darknet training. It's OK if there is a mismatch warning.
-
-6. The training strategy is for reference only. Adjust it according to your dataset and your goal. And add further strategy if needed.
-
-7. For speeding up the training process with frozen layers train_bottleneck.py can be used. It will compute the bottleneck features of the frozen model first and then only trains the last layers. This makes training on CPU possible in a reasonable time. See [this](https://blog.keras.io/building-powerful-image-classification-models-using-very-little-data.html) for more information on bottleneck features.
+### Video
+[![2D Perception of Micro-mobility Vehicles on LGSVL Simulator | CMPE 297 Spring 2019](docs/images/thumbnail.jpg)](https://www.youtube.com/watch?v=DwWY89dVGEw)
