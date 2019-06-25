@@ -1,9 +1,11 @@
-*.jpg
+/*.jpg
 *.png
 *.weights
 *.h5
 logs/
 *_test.py
+
+!docs/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
