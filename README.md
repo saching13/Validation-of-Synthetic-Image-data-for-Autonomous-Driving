@@ -18,7 +18,6 @@ Our YOLO3 detects 5 different micro-mobility vehicles from the images captured b
 ```
 python inference.py [OPTIONS...] --image, for image detection mode
 ```
-3. You will see 2D bounding boxes on images you pass in.
 
 ### Usage
 Use --help to see usage of inference.py:
@@ -62,6 +61,12 @@ If you are trying to run inferences on LGSVL simulators using ROS nodes, `get_de
     `python train.py`  
     Use your trained weights or checkpoint weights with command line option `--model model_file` when using `inference.py`
     Remember to modify class path or anchor path, with `--classes class_file` and `--anchors anchor_file`.
+
+3. You can access to our datasets we trained our model on from here. These two datasets are separated because they were collected in different times. Setups and formats are identical.
+
+[dataset1_link](https://www.dropbox.com/s/9cvsmraio6q6v0d/large_dataset_1.zip?dl=0)
+
+[dataset2_link](https://www.dropbox.com/s/kt6hwfsa95v4hck/large_dataset_2.zip?dl=0)
 
 ---
 
