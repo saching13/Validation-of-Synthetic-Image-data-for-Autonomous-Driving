@@ -77,7 +77,7 @@ ROS nodes that were created for this project are available [here](https://github
 ### Video - Real-time inference on frames captured from the Simulator
 [![2D Perception of Micro-mobility Vehicles on LGSVL Simulator | CMPE 297 Spring 2019](docs/images/thumbnail.jpg)](https://www.youtube.com/watch?v=DwWY89dVGEw)
 
-## Collaborators
+## Contributors
 * **Deepak Talwar** - (https://github.com/deepaktalwardt)
 * **Seung Won Lee** - (https://github.com/swdev1202)
 ### This repository was originally developed for CMPE 297 - Autonomous Driving course at San Jose State University in Spring 2019.
