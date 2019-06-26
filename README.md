@@ -68,10 +68,12 @@ ROS nodes that were created for this project are available [here](https://github
 
 ## Results
 
-### Image
+### Images
 ![](docs/images/result.jpg)
+![](docs/images/713.jpg)
+![](docs/images/753.jpg)
 
-### Real-time inference on frames captured from the Simulator (Click for video)
+### Video - Real-time inference on frames captured from the Simulator
 [![2D Perception of Micro-mobility Vehicles on LGSVL Simulator | CMPE 297 Spring 2019](docs/images/thumbnail.jpg)](https://www.youtube.com/watch?v=DwWY89dVGEw)
 
 ## Collaborators
