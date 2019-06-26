@@ -6,7 +6,7 @@
 
 The original implementation comes from [qqwweee/keras-yolo3](https://github.com/qqwweee/keras-yolo3).
 
-Our YOLO3 detects 5 different micro-mobility vehicles from the images captured by the [lgsvl/simulator](https://github.com/lgsvl/simulator). The vehicles we are interested in detecting include scooters, hoverboards, skateboards, segways, and one-wheels.
+Our YOLO3 detects 5 different micro-mobility vehicles from the images captured by the [LGSVL Automotive Simulator Micromobility version](https://github.com/deepaktalwardt/lgsvl_simulator_micromobility). The vehicles we are interested in detecting include scooters, hoverboards, skateboards, segways, and one-wheels.
 
 ## Quick Start
 
@@ -69,7 +69,7 @@ If you are trying to run inferences on LGSVL simulators using ROS nodes, `get_de
 ### Image
 ![](docs/images/result.jpg)
 
-### Video
+### Real-time inference on frames captured from the Simulator (Click for video)
 [![2D Perception of Micro-mobility Vehicles on LGSVL Simulator | CMPE 297 Spring 2019](docs/images/thumbnail.jpg)](https://www.youtube.com/watch?v=DwWY89dVGEw)
 
 ## Collaborators
