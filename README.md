@@ -39,6 +39,8 @@ optional arguments:
 ### ROS
 If you are trying to run inferences on LGSVL simulators using ROS nodes, `get_detections` function in `yolo.py` returns 2D bounding box information.
 
+ROS nodes that were created for this project are available [here](https://github.com/deepaktalwardt/lgsvl_micromobility_ros_pkgs).
+
 ## Training
 
 1. Generate your own annotation file and class names file.  
