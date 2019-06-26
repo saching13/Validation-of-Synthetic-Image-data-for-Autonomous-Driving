@@ -63,9 +63,9 @@ ROS nodes that were created for this project are available [here](https://github
 
 3. You can access to our datasets we trained our model on from here. These two datasets are separated because they were collected in different times. Setups and formats are identical.
 
-[dataset1_link](https://www.dropbox.com/s/9cvsmraio6q6v0d/large_dataset_1.zip?dl=0)
+* [Dataset 1](https://www.dropbox.com/s/9cvsmraio6q6v0d/large_dataset_1.zip?dl=0)
 
-[dataset2_link](https://www.dropbox.com/s/kt6hwfsa95v4hck/large_dataset_2.zip?dl=0)
+* [Dataset 2](https://www.dropbox.com/s/kt6hwfsa95v4hck/large_dataset_2.zip?dl=0)
 
 ## Results
 
