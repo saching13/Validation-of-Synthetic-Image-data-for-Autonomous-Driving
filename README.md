@@ -1,4 +1,5 @@
 # keras-yolo3
+### YOLOv3 implementation in Keras with TensorFlow backend trained to detect micromobility vehicles on datasets collected from LGSVL Automotive Simulator.
 
 [![license](https://img.shields.io/github/license/mashape/apistatus.svg)](LICENSE)
 
