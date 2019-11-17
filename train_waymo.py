@@ -9,14 +9,13 @@ from keras.layers import Input, Lambda
 from keras.models import Model
 from keras.optimizers import Adam
 from keras.callbacks import TensorBoard, ModelCheckpoint, ReduceLROnPlateau, EarlyStopping
+from google.cloud import storage
 
 from yolo3.model import preprocess_true_boxes, yolo_body, tiny_yolo_body, yolo_loss
 from yolo3.utils import get_random_data
 
 
 NUM_CLASSES = 2
-
-
 
 def _parse_function(proto):
     # define your tfrecord again. Remember that you saved your image as a string.
@@ -42,8 +41,8 @@ def _parse_function(proto):
     
     return parsed_features['image/encoded'], parsed_features["image/object/class/text"]
 
-def create_dataset(filepath):
-    dataset = tf.data.TFRecordDataset(record_file)
+def read_tfrecords(filepaths):
+    dataset = tf.data.TFRecordDataset(filepaths)
         
     # Maps the parser on every filepath in the array. You can set the number of parallel loaders here
     dataset = dataset.map(_parse_function, num_parallel_calls=8)
@@ -56,6 +55,7 @@ def create_dataset(filepath):
 
     # Set the batchsize
     dataset = dataset.batch(8)
+    dataset = dataset.prefetch(2)
 
     # Create an iterator
     iterator = dataset.make_one_shot_iterator()
@@ -67,7 +67,26 @@ def create_dataset(filepath):
 
     return image, label
 
+
+def list_blobs_with_prefix(bucket_name, prefix, delimiter=None):
+    
+    storage_client = storage.Client()
+    bucket = storage_client.get_bucket(bucket_name)
+
+    blobs = bucket.list_blobs(prefix=prefix, delimiter=delimiter)
+    file_list = []
+    for blob in blobs:
+        file_list.append('gs://'+bucket_name+'/'+blob.name)
+
+    return file_list
+
+
 def _main():
+    file_names = list_blobs_with_prefix('waymo_validation','training_dataset/tf_records')
+    images,label = read_tfrecords(file_names)
+    
+    
+    
 
 
 
@@ -76,35 +95,30 @@ def _main():
 
 
 
-
-    annotation_path = '../large_dataset_1/gt_2d/gt_2d_yolo3_annotations.txt'
-    log_dir = 'logs/large_dataset_1_training_2/000'
-    classes_path = 'model_data/lgsvl_classes.txt'
-    anchors_path = 'model_data/lgsvl_anchors.txt'
-    class_names = get_classes(classes_path)
-    num_classes = len(class_names)
-    anchors = get_anchors(anchors_path)
+#     annotation_path = '../large_dataset_1/gt_2d/gt_2d_yolo3_annotations.txt'
+     log_dir = 'logs/large_dataset_1_training_2/000'
+#     classes_path = 'model_data/lgsvl_classes.txt'
+     anchors_path = 'model_data/lgsvl_anchors.txt'
+#     class_names = get_classes(classes_path)
+     num_classes = 2
+     anchors = get_anchors(anchors_path)
 
     input_shape = (640,640) # multiple of 32, hw
+    image_input = keras.layers.Input(tensor=image)
+    print("<--------------- model Input ----------------->")
+    print(model_input)
 
-    is_tiny_version = len(anchors)==6 # default setting
-    if is_tiny_version:
-        model = create_tiny_model(input_shape, anchors, num_classes,
-            freeze_body=2, weights_path='model_data/tiny_yolo_weights.h5')
-    # else:
-    #     model = create_model(input_shape, anchors, num_classes,
-    #         freeze_body=2, weights_path='model_data/yolo_weights.h5') # make sure you know what you freeze
-    else:
-        model = create_model(input_shape, anchors, num_classes,
-            freeze_body=2, weights_path='logs/large_dataset_1_training/000ep018-loss20.558-val_loss20.473.h5') # make sure you know what you freeze
-
+    batch_size = 2
+    model = create_model(model_input, image_input, anchors, num_classes,
+            freeze_body=2, weights_path='logs/large_dataset_1_training/000ep018-loss20.558-val_loss20.473.h5')
+    # make sure you know what you freeze
 
     logging = TensorBoard(log_dir=log_dir)
     checkpoint = ModelCheckpoint(log_dir + 'ep{epoch:03d}-loss{loss:.3f}-val_loss{val_loss:.3f}.h5',
         monitor='val_loss', save_weights_only=True, save_best_only=True, period=3)
     reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.1, patience=3, verbose=1)
     early_stopping = EarlyStopping(monitor='val_loss', min_delta=0, patience=10, verbose=1)
-
+ 
     val_split = 0.1
     with open(annotation_path) as f:
         lines = f.readlines()
@@ -121,15 +135,18 @@ def _main():
             # use custom yolo_loss Lambda layer.
             'yolo_loss': lambda y_true, y_pred: y_pred})
 
-        batch_size = 16
+
         print('Train on {} samples, val on {} samples, with batch size {}.'.format(num_train, num_val, batch_size))
-        model.fit_generator(data_generator_wrapper(lines[:num_train], batch_size, input_shape, anchors, num_classes),
-                steps_per_epoch=max(1, num_train//batch_size),
-                validation_data=data_generator_wrapper(lines[num_train:], batch_size, input_shape, anchors, num_classes),
-                validation_steps=max(1, num_val//batch_size),
-                epochs=2, # Change to 50
-                initial_epoch=18, #Change back to 0
-                callbacks=[logging, checkpoint])
+        
+        
+        
+#         model.fit_generator(data_generator_wrapper(lines[:num_train], batch_size, input_shape, anchors, num_classes),
+#                 steps_per_epoch=max(1, num_train//batch_size),
+#                 validation_data=data_generator_wrapper(lines[num_train:], batch_size, input_shape, anchors, num_classes),
+#                 validation_steps=max(1, num_val//batch_size),
+#                 epochs=2, # Change to 50
+#                 initial_epoch=18, #Change back to 0
+#                 callbacks=[logging, checkpoint])
         model.save_weights(log_dir + 'trained_weights_stage_1.h5')
 
     # Unfreeze and continue training, to fine-tune.
@@ -210,7 +227,7 @@ def get_anchors(anchors_path):
     return np.array(anchors).reshape(-1, 2)
 
 
-def create_model(input_shape, anchors, num_classes, load_pretrained=True, freeze_body=2,
+def create_model(input_shape,image_input, anchors, num_classes, load_pretrained=True, freeze_body=2,
             weights_path='model_data/yolo_weights.h5'):
     '''create the training model'''
     config = tf.ConfigProto()
@@ -218,7 +235,7 @@ def create_model(input_shape, anchors, num_classes, load_pretrained=True, freeze
     sess = tf.Session(config=config)
     K.set_session(sess)
     # K.clear_session() # get a new session
-    image_input = Input(shape=(None, None, 3))
+    #image_input = Input(shape=(None, None, 3))
     h, w = input_shape
     num_anchors = len(anchors)
 

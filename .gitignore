@@ -5,6 +5,7 @@
 logs/
 *_test.py
 
+/data
 !docs/
 
 # Byte-compiled / optimized / DLL files
