@@ -3,6 +3,8 @@ Retrain the YOLO model for your own dataset.
 """
 
 import numpy as np
+from PIL import Image
+
 import keras.backend as K
 import tensorflow as tf
 from keras.layers import Input, Lambda
@@ -10,17 +12,19 @@ from keras.models import Model
 from keras.optimizers import Adam
 from keras.callbacks import TensorBoard, ModelCheckpoint, ReduceLROnPlateau, EarlyStopping
 from google.cloud import storage
+import io
 
 from yolo3.model import preprocess_true_boxes, yolo_body, tiny_yolo_body, yolo_loss
-
+from yolo3.utils import rand
+from matplotlib.colors import rgb_to_hsv, hsv_to_rgb
 
 def _main():
-    annotation_path = '../large_dataset_1/gt_2d/gt_2d_yolo3_annotations.txt'
+    annotation_path = 'model_data/training_annotation.txt'
     log_dir = 'logs/large_dataset_1_training_2/000'
-    classes_path = 'model_data/lgsvl_classes.txt'
-    anchors_path = 'model_data/lgsvl_anchors.txt'
-    class_names = get_classes(classes_path)
-    num_classes = len(class_names)
+    #classes_path = 'model_data/lgsvl_classes.txt'
+    anchors_path = 'model_data/yolo_anchors.txt'
+    #class_names = 2
+    num_classes = 2
     anchors = get_anchors(anchors_path)
 
     input_shape = (640,640) # multiple of 32, hw
@@ -33,8 +37,9 @@ def _main():
     #     model = create_model(input_shape, anchors, num_classes,
     #         freeze_body=2, weights_path='model_data/yolo_weights.h5') # make sure you know what you freeze
     else:
+        print("Not tiny mode")
         model = create_model(input_shape, anchors, num_classes,
-            freeze_body=2, weights_path='logs/large_dataset_1_training/000ep018-loss20.558-val_loss20.473.h5') # make sure you know what you freeze
+            freeze_body=2, weights_path='model_data/000ep024-loss18.826-val_loss19.320.h5') # make sure you know what you freeze
 
 
     logging = TensorBoard(log_dir=log_dir)
@@ -49,10 +54,10 @@ def _main():
     np.random.seed(10101)
     np.random.shuffle(lines)
     np.random.seed(None)
-    #um_val = int(len(lines)*val_split)
-    #num_train = len(lines) - num_val
-    num_train = 1000
-    num_val = 100
+    num_val = int(len(lines)*val_split)
+    num_train = len(lines) - num_val
+    #num_train = 1000
+    #num_val = 100
     # Train with frozen layers first, to get a stable loss.
     # Adjust num epochs to your dataset. This step is enough to obtain a not bad model.
     if True:
@@ -66,8 +71,8 @@ def _main():
                 steps_per_epoch=max(1, num_train//batch_size),
                 validation_data=data_generator_wrapper(lines[num_train:], batch_size, input_shape, anchors, num_classes),
                 validation_steps=max(1, num_val//batch_size),
-                epochs=2, # Change to 50
-                initial_epoch=18, #Change back to 0
+                epochs=30, # Change to 50
+                initial_epoch=0, #Change back to 0
                 callbacks=[logging, checkpoint])
         model.save_weights(log_dir + 'trained_weights_stage_1.h5')
 
@@ -85,8 +90,8 @@ def _main():
             steps_per_epoch=max(1, num_train//batch_size),
             validation_data=data_generator_wrapper(lines[num_train:], batch_size, input_shape, anchors, num_classes),
             validation_steps=max(1, num_val//batch_size),
-            epochs=100,
-            initial_epoch=50,
+            epochs=30,
+            initial_epoch=0,
             callbacks=[logging, checkpoint, reduce_lr, early_stopping])
         model.save_weights(log_dir + 'trained_weights_final.h5')
 
@@ -214,15 +219,19 @@ def download_blob2(bucket_name, destination_blob_name):
 def get_random_data(annotation_line, input_shape, random=True, max_boxes=20, jitter=.3, hue=.1, sat=1.5, val=1.5, proc_img=True):
     '''random preprocessing for real-time data augmentation'''
     line = annotation_line.split()
-    file_name = 'Training_data/images/'+line
+    #print("file name ----------------------->")
+    file_name = 'Training_data/images/'+line[0]
+    #print(file_name)
     file_string = download_blob2('waymo_validation',file_name)
+    #print("file name eeeennnddddd----------------------->")
+    #print(type(file_name))
     image = Image.open(io.BytesIO(file_string))
 
     #image = Image.open(line[0])
     iw, ih = image.size
     h, w = input_shape
-    box = np.array([np.array(list(map(int,box.split(',')))) for box in line[1:]])
-
+    box = np.array([np.array(list(map(int,map(float,box.split(','))))) for box in line[1:]])
+    #print(box)
     if not random:
         # resize image
         scale = min(w/iw, h/ih)
