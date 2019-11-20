@@ -39,7 +39,7 @@ def _main():
     else:
         print("Not tiny mode")
         model = create_model(input_shape, anchors, num_classes,
-            freeze_body=2, weights_path='model_data/000ep024-loss18.826-val_loss19.320.h5') # make sure you know what you freeze
+            freeze_body=2, weights_path='logs/large_dataset_1_training_2/000ep006-loss110.916-val_loss114.208.h5') # make sure you know what you freeze
 
 
     logging = TensorBoard(log_dir=log_dir)
@@ -60,7 +60,7 @@ def _main():
     #num_val = 100
     # Train with frozen layers first, to get a stable loss.
     # Adjust num epochs to your dataset. This step is enough to obtain a not bad model.
-    if True:
+    if False:
         model.compile(optimizer=Adam(lr=1e-3), loss={
             # use custom yolo_loss Lambda layer.
             'yolo_loss': lambda y_true, y_pred: y_pred})
@@ -90,7 +90,7 @@ def _main():
             steps_per_epoch=max(1, num_train//batch_size),
             validation_data=data_generator_wrapper(lines[num_train:], batch_size, input_shape, anchors, num_classes),
             validation_steps=max(1, num_val//batch_size),
-            epochs=30,
+            epochs=20,
             initial_epoch=0,
             callbacks=[logging, checkpoint, reduce_lr, early_stopping])
         model.save_weights(log_dir + 'trained_weights_final.h5')

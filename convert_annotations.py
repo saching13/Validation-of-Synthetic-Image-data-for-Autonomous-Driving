@@ -1,7 +1,7 @@
 import csv
 
-input_path = "/home/deepaktalwardt/Dropbox/SJSU/Semesters/Spring 2019/CMPE 297/datasets/large_dataset_1/gt_2d/gt_2d_yolo2_annotations.csv"
-output_path = "/home/deepaktalwardt/Dropbox/SJSU/Semesters/Spring 2019/CMPE 297/datasets/large_dataset_1/gt_2d/gt_2d_yolo3_annotations.txt"
+input_path = "gt_2d_yolo2_annotations.csv"
+output_path = "inputs/gt_2d_yolo3_annotations.txt"
 
 def convert_annotations(input_path, output_path):
 
