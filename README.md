@@ -6,34 +6,13 @@ The original implementation of YOLOv3 comes from [qqwweee/keras-yolo3](https://g
 [![license](https://img.shields.io/github/license/mashape/apistatus.svg)](LICENSE)
 
 ## Introduction
-## Quick Start
-
-1. Download pretrained weights [here](https://www.dropbox.com/s/a44ly3zd6bzmssw/2d-final-weights-keras-yolo3.h5?dl=0).
-2. Move the downloaded .h5 file inside [model_data](model_data)
-3. Run YOLO detection.
-```
-python inference.py [OPTIONS...] --image, for image detection mode
-```
-
-### Usage
-Use --help to see usage of inference.py:
-```
-usage: inference.py [-h] [--model MODEL] [--anchors ANCHORS]
-                     [--classes CLASSES] [--gpu_num GPU_NUM] [--image]
-
-required arguments:
-  --image            Image detection mode
-
-optional arguments:
-  -h, --help         show this help message and exit
-  --model MODEL      path to model weight file, default model_data/yolo.h5
-  --anchors ANCHORS  path to anchor definitions, default
-                     model_data/yolo_anchors.txt
-  --classes CLASSES  path to class definitions, default
-                     model_data/coco_classes.txt
-  --gpu_num GPU_NUM  Number of GPU to use, default 1
-```
-
+This repository provides code for the implementation of the project __Evaluating Validity of Synthetic data in Perception tasks for Autonomous Vehicles__ implemented as the final project for CMPE 256 Fall 2019 by Team Surreal. In this project, we aim to determine if data generated from simulated 3D environments can be generalized to real-world test datasets. Here, we provide code for the following tasks:
+* Collecting data from the simulation environments.
+* Extracting data from Waymo Open Dataset and converting it to our format.
+* Extracting data from KITTI Vision benchmark dataset and converting it to our format.
+* Training YOLOv3 Object detection algorithm on these datasets.
+* Running inference of trained models on test datasets.
+* Evaluating performance of inference using the mean average precision (mAP).
 
 ## Data Collection
 ### Simulated Datasets
@@ -52,7 +31,7 @@ If you wish to download the collected datasets please download the zip files lin
 These zip files contain the front camera 2D images as well as the ground truth information in a single CSV file.
 
 ### Real-World Datasets
-## Waymo Dataset: Extracting into Google Cloud Project buckets
+### Waymo Dataset: Extracting into Google Cloud Project buckets
 1. Download the waymo dataset files(first 3 only for images training) [here](https://waymo.com/open/download/#)
 2. Extract the tar file to get the list of segments.
 3. Submit the path of all the segments to [training_data_to_gcs.ipynb](https://github.com/saching13/Validation-of-Synthetic-Image-data-for-Autonomous-Driving/blob/master/training_data_to_gcs.ipynb) or [validation_to_gcs.ipynb](https://github.com/saching13/Validation-of-Synthetic-Image-data-for-Autonomous-Driving/blob/master/validation_to_gcs.ipynb)
@@ -97,19 +76,11 @@ KITTI dataset can be found [here](http://www.cvlibs.net/datasets/kitti/eval_obje
 
   On passsing the images folder path  and annotation file with bounding boxes it will generate images with bounding boxes for visualization. set `gcs = False` to create the output files in local file system and `True` to create files in GCP.
 
-
-### ROS
-If you are trying to run inferences on LGSVL simulators using ROS nodes, `get_detections` function in `yolo.py` returns 2D bounding box information.
-
-ROS nodes that were created for this project are available [here](https://github.com/deepaktalwardt/lgsvl_micromobility_ros_pkgs).
-
 ## Training
-
-1. Generate your own annotation file and class names file.  
+1. We generated our own annotation file and class names file according to the following format  
     One row for one image;  
     Row format: `image_file_path box1 box2 ... boxN`;  
     Box format: `x_min,y_min,x_max,y_max,class_id` (no space).  
-    For VOC dataset, try `python voc_annotation.py`  
     Here is an example:
     ```
     path/to/img1.jpg 50,100,150,200,0 30,50,200,120,3
@@ -117,22 +88,24 @@ ROS nodes that were created for this project are available [here](https://github
     ...
     ```
 
-2. Modify train.py and start training.  
-    `python train.py`  
-    Use your trained weights or checkpoint weights with command line option `--model model_file` when using `inference.py`
-    Remember to modify class path or anchor path, with `--classes class_file` and `--anchors anchor_file`.
+2. We then calculated the correct anchors for each of our datasets using [kmeans.py](kmeans.py) script. These anchors are then placed into the anchors file provided for training.
 
-3. You can access to our datasets we trained our model on from here. These two datasets are separated because they were collected in different times. Setups and formats are identical.
+3. To start training, we modified the `train.py` file with the correct image sizes, anchor sizes, class names, starting weights as well as hyper-parameters. We started with pretrained YOLOv3 weights. These weights can be downloaded [here](https://www.dropbox.com/s/a44ly3zd6bzmssw/2d-final-weights-keras-yolo3.h5?dl=0).
 
-* [Dataset 1](https://www.dropbox.com/s/9cvsmraio6q6v0d/large_dataset_1.zip?dl=0)
-
-* [Dataset 2](https://www.dropbox.com/s/kt6hwfsa95v4hck/large_dataset_2.zip?dl=0)
+4. The progress of the trainings can be looked at through TensorBoard.
 
 ## Inference
+After training has been performed and suitable weights are generated, we can begin the inference process on the different testsets. Inference can be run on the entire testset using [test_set_inference.py](test_set_inference.py). This file will pass each image through the trained network and draw detections as boxes on the images. The images as well as the detections will be saved. The detections saved in a single CSV file is then used to evaluate the mean average precision.
 
 ## Evaluation
 
 ## Results
+This section shows sample images from all our trainings. The headers below follow the format: `Model trained on `-`Model tested on`
+
+### Model trained on LGSVL Sim1 dataset produces the following results
+LGSVL Sim1                 |  LGSVL Sim2               |  KITTI | Waymo
+:-------------------------:|:-------------------------:|:-------:|:-----
+![](https://...Dark.png)  |  ![](https://...Ocean.png) | ![](https://...Dark.png)  |  ![](https://...Ocean.png)
 
 ### Images
 ![](docs/images/result.jpg)
