@@ -3,8 +3,6 @@
 
 The original implementation of YOLOv3 comes from [qqwweee/keras-yolo3](https://github.com/qqwweee/keras-yolo3). This repository contains the modified implementation for the datasets mentioned below and in the project report. This repository also contains code for data collection from LGSVL Simulators written as ROS (Robot Operating System) Nodes, as well as data processing and evaluation scripts.
 
-[![license](https://img.shields.io/github/license/mashape/apistatus.svg)](LICENSE)
-
 ## Introduction
 This repository provides code for the implementation of the project __Evaluating Validity of Synthetic data in Perception tasks for Autonomous Vehicles__ implemented as the final project for CMPE 256 Fall 2019 by Team Surreal. In this project, we aim to determine if data generated from simulated 3D environments can be generalized to real-world test datasets. Here, we provide code for the following tasks:
 * Collecting data from the simulation environments.
@@ -105,7 +103,7 @@ This section shows sample images from all our trainings. The headers below follo
 ### Model trained on LGSVL Sim1 dataset produces the following results
 LGSVL Sim1                 |  LGSVL Sim2               |  KITTI | Waymo
 :-------------------------:|:-------------------------:|:-------:|:-----
-![](https://...Dark.png)  |  ![](https://...Ocean.png) | ![](https://...Dark.png)  |  ![](https://...Ocean.png)
+![](docs/images/lgsvl1/1.jpg)  |  ![](docs/images/lgsvl1/2.jpg) | ![](docs/images/lgsvl1/3.jpg)  |  ![](docs/images/lgsvl1/4.jpg)
 
 ### Images
 ![](docs/images/result.jpg)
