@@ -1,10 +1,7 @@
-# CMPE 256 - Fall 2019 Project
-## Team Surreal
-## Validation of Synthetic image data for Autonomous Driving
+# CMPE 256 - Fall 2019 Project: Team Surreal
+## Evaluating Validity of Synthetic data in Perception tasks for Autonomous Vehicles
 
-### YOLOv3 implementation in Keras with TensorFlow backend trained on multiple datasets for validation of synthetic Image data for Autonomous Driving
-
-The original implementation of YOLOv3 comes from [qqwweee/keras-yolo3](https://github.com/qqwweee/keras-yolo3). This repo contains the modified implementation for the datasets mentioned below and in the project report. This repo also contains code for data collection from LGSVL Simulators written as ROS (Robot Operating System) Nodes.
+The original implementation of YOLOv3 comes from [qqwweee/keras-yolo3](https://github.com/qqwweee/keras-yolo3). This repository contains the modified implementation for the datasets mentioned below and in the project report. This repository also contains code for data collection from LGSVL Simulators written as ROS (Robot Operating System) Nodes, as well as data processing and evaluation scripts.
 
 [![license](https://img.shields.io/github/license/mashape/apistatus.svg)](LICENSE)
 
@@ -39,6 +36,7 @@ optional arguments:
 
 
 ## Data Collection
+### Simulated Datasets
 For this project, we collected data from two different versions of LGSVL Automotive Simulator by writing ROS Nodes and connecting to the simulators over ROS Bridge. For more details on how the LGSVL Simulator works please visit the links below
 
 #### [LGSVL 2019.05 Release (Sim1)](https://github.com/lgsvl/simulator-2019.05-obsolete)
@@ -53,7 +51,8 @@ If you wish to download the collected datasets please download the zip files lin
 
 These zip files contain the front camera 2D images as well as the ground truth information in a single CSV file.
 
-### Extracting waymo datasets into GCP buckets
+### Real-World Datasets
+## Waymo Dataset: Extracting into Google Cloud Project buckets
 1. Download the waymo dataset files(first 3 only for images training) [here](https://waymo.com/open/download/#)
 2. Extract the tar file to get the list of segments.
 3. Submit the path of all the segments to [training_data_to_gcs.ipynb](https://github.com/saching13/Validation-of-Synthetic-Image-data-for-Autonomous-Driving/blob/master/training_data_to_gcs.ipynb) or [validation_to_gcs.ipynb](https://github.com/saching13/Validation-of-Synthetic-Image-data-for-Autonomous-Driving/blob/master/validation_to_gcs.ipynb)
@@ -85,20 +84,18 @@ feature={
 
 ```
 
-### Converting KITTI dataset to YOLOV3 finput format
+### KITTI Dataset: Converting KITTI dataset to YOLOV3 finput format
 
-1. Kitti dataset is a stero camera dataset.
+1. KITTI dataset is a stero camera dataset.
 2. Dataset is of the format that each image contains it's individual text file which contains the class name, bounding box and other information.
 3. we needed to convert it into single annotation file with bounding box, class. 
 4. pass the list of annotation files of kitti dataset into [annotation_converter_kitti.py](https://github.com/saching13/Validation-of-Synthetic-Image-data-for-Autonomous-Driving/blob/master/annotation_converter_kitti.py) to create a single annotation file.
 
-Kitti dataset can be found [here](http://www.cvlibs.net/datasets/kitti/eval_object.php?obj_benchmark=2d)
+KITTI dataset can be found [here](http://www.cvlibs.net/datasets/kitti/eval_object.php?obj_benchmark=2d)
 
 #### [image annotator.ipynb](https://github.com/saching13/Validation-of-Synthetic-Image-data-for-Autonomous-Driving/blob/master/image%20annotator.ipynb)
 
   On passsing the images folder path  and annotation file with bounding boxes it will generate images with bounding boxes for visualization. set `gcs = False` to create the output files in local file system and `True` to create files in GCP.
-
-
 
 
 ### ROS
@@ -147,5 +144,6 @@ ROS nodes that were created for this project are available [here](https://github
 
 ## Contributors
 * **Deepak Talwar** - (https://github.com/deepaktalwardt)
-* **Seung Won Lee** - (https://github.com/swdev1202)
-### This repository was originally developed for CMPE 297 - Autonomous Driving course at San Jose State University in Spring 2019.
+* **Sachin Guruswamy** - (https://github.com/swdev1202)
+* **Naveen Ravipati** - (https://github.com/)
+### This repository was developed for CMPE 256 - Large Scale Analytics at San Jose State University in Fall 2019.
