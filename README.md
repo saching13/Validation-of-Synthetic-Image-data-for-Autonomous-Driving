@@ -19,12 +19,12 @@ For this project, we collected data from two different versions of LGSVL Automot
 #### [LGSVL 2019.05 Release (Sim1)](https://github.com/lgsvl/simulator-2019.05-obsolete)
 #### [LGSVL 2019.10 Release (Sim2)](https://github.com/lgsvl/simulator)
 
-The ROS packages written for collected data from the above mentioned simulators are provided in ??[]() folder. If you wish to run them, please copy the packages into your catkin workspace and run `catkin_make` to build these packages.
+The ROS packages written for collected data from the above mentioned simulators are provided in [ros_workspace](ros_workspace) folder. If you wish to run them, please install ROS Kinetic Kame and run `catkin_make` to build these packages.
 
 If you wish to download the collected datasets please download the zip files linked below
 
-#### [LGVSL Sim1 Dataset]()
-#### [LGSVL Sim2 Dataset]()
+#### [LGVSL Sim1 Dataset](https://www.dropbox.com/s/nhbwk2gqulnkodi/lgsvl_1_dataset_2.zip?dl=0)
+#### [LGSVL Sim2 Dataset](https://www.dropbox.com/s/zh603pabvakt2i9/lgsvl_2_dataset_3.zip?dl=0)
 
 These zip files contain the front camera 2D images as well as the ground truth information in a single CSV file.
 
@@ -88,33 +88,73 @@ KITTI dataset can be found [here](http://www.cvlibs.net/datasets/kitti/eval_obje
 
 2. We then calculated the correct anchors for each of our datasets using [kmeans.py](kmeans.py) script. These anchors are then placed into the anchors file provided for training.
 
-3. To start training, we modified the `train.py` file with the correct image sizes, anchor sizes, class names, starting weights as well as hyper-parameters. We started with pretrained YOLOv3 weights. These weights can be downloaded [here](https://www.dropbox.com/s/a44ly3zd6bzmssw/2d-final-weights-keras-yolo3.h5?dl=0).
+3. To start training, we modified the [train.py](train.py) file with the correct image sizes, anchor sizes, class names, starting weights as well as hyper-parameters. We started with pretrained YOLOv3 weights. These weights can be downloaded [here](https://www.dropbox.com/s/a44ly3zd6bzmssw/2d-final-weights-keras-yolo3.h5?dl=0).
 
 4. The progress of the trainings can be looked at through TensorBoard.
+
+5. If you wish to use our training weights you can find them here:
+* [Model trained on LGSVL Sim1 dataset](https://www.dropbox.com/s/jlevzz3yf4urbr4/lgsvl_1trained_weights_final.h5?dl=0)
+* [Model trained on LGSVL Sim2 dataset](https://www.dropbox.com/s/18xi1ljwfvjlx2x/000trained_weights_final.h5?dl=0)
+* [Model trained on LGSVL KITTI dataset](https://www.dropbox.com/s/edg06gy1le529ai/kitti_epoch_final_30iter_unfreeze_all.h5?dl=0)
 
 ## Inference
 After training has been performed and suitable weights are generated, we can begin the inference process on the different testsets. Inference can be run on the entire testset using [test_set_inference.py](test_set_inference.py). This file will pass each image through the trained network and draw detections as boxes on the images. The images as well as the detections will be saved. The detections saved in a single CSV file is then used to evaluate the mean average precision.
 
 ## Evaluation
+For evaluation, we used the mean average precision metric. This metric is calculated by comparing the ground truth boxes with the detections boxes and calculating the Intersection over Union (IoU). This IoU is then used to calculate the number of True Positives and False Positives, which in turn can be used to calcualte average precision. Mean Average precision is the mean of all AP values over all classes. Please see this repository for more details on our implementation: [https://github.com/Naveen-Ravipati/mAP](https://github.com/Naveen-Ravipati/mAP).
 
 ## Results
-This section shows sample images from all our trainings. The headers below follow the format: `Model trained on `-`Model tested on`
+This section shows sample images from inference of our trained models on our test datasets. Each section shows the inference results of one trained model on images taken from the four testsets.
 
-### Model trained on LGSVL Sim1 dataset produces the following results
-LGSVL Sim1                 |  LGSVL Sim2               |  KITTI | Waymo
-:-------------------------:|:-------------------------:|:-------:|:-----
-![](docs/images/lgsvl1/1.jpg)  |  ![](docs/images/lgsvl1/2.jpg) | ![](docs/images/lgsvl1/3.jpg)  |  ![](docs/images/lgsvl1/4.jpg)
+### 1. Model trained on __LGSVL Sim1__ dataset produces the following results on the given testsets
+#### Tested on LGSVL Sim1 testset
+![](docs/images/lgsvl1/1.jpg)  
 
-### Images
+#### Tested on LGSVL Sim2 testset
+![](docs/images/lgsvl1/2.jpg)  
+
+#### Tested on KITTI testset
+![](docs/images/lgsvl1/3.png) 
+
+#### Tested on Waymo testset
+![](docs/images/lgsvl1/4.jpg)
+
+### 2. Model trained on __LGSVL Sim2__ dataset produces the following results on the given testsets
+#### Tested on LGSVL Sim1 testset
+![](docs/images/lgsvl2/1.jpg)  
+
+#### Tested on LGSVL Sim2 testset
+![](docs/images/lgsvl2/2.jpg)  
+
+#### Tested on KITTI testset
+![](docs/images/lgsvl2/3.png) 
+
+#### Tested on Waymo testset
+![](docs/images/lgsvl2/4.jpg)
+
+### 3. Model trained on __KITTI__ dataset produces the following results on the given testsets
+#### Tested on LGSVL Sim1 testset
+![](docs/images/kitti/1.jpg)  
+
+#### Tested on LGSVL Sim2 testset
+![](docs/images/kitti/2.jpg)  
+
+#### Tested on KITTI testset
+![](docs/images/kitti/3.png) 
+
+#### Tested on Waymo testset
+![](docs/images/kitti/4.jpg)
+
+<!-- ### Images
 ![](docs/images/result.jpg)
 ![](docs/images/713.jpg)
-![](docs/images/753.jpg)
+![](docs/images/753.jpg) -->
 
-### Video - Real-time inference on frames captured from the Simulator
-[![2D Perception of Micro-mobility Vehicles on LGSVL Simulator | CMPE 297 Spring 2019](docs/images/thumbnail.jpg)](https://www.youtube.com/watch?v=DwWY89dVGEw)
+<!-- ### Video - Real-time inference on frames captured from the Simulator
+[![2D Perception of Micro-mobility Vehicles on LGSVL Simulator | CMPE 297 Spring 2019](docs/images/thumbnail.jpg)](https://www.youtube.com/watch?v=DwWY89dVGEw) -->
 
 ## Contributors
 * **Deepak Talwar** - (https://github.com/deepaktalwardt)
 * **Sachin Guruswamy** - (https://github.com/swdev1202)
-* **Naveen Ravipati** - (https://github.com/)
+* **Naveen Ravipati** - (https://github.com/Naveen-Ravipati)
 ### This repository was developed for CMPE 256 - Large Scale Analytics at San Jose State University in Fall 2019.
