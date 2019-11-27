@@ -1,14 +1,14 @@
-# keras-yolo3
+# CMPE 256 - Fall 2019 Project
+## Team Surreal
+## Validation of Synthetic image data for Autonomous Driving
+
 ### YOLOv3 implementation in Keras with TensorFlow backend trained on multiple datasets for validation of synthetic Image data for Autonomous Driving
+
+The original implementation of YOLOv3 comes from [qqwweee/keras-yolo3](https://github.com/qqwweee/keras-yolo3). This repo contains the modified implementation for the datasets mentioned below and in the project report. This repo also contains code for data collection from LGSVL Simulators written as ROS (Robot Operating System) Nodes.
 
 [![license](https://img.shields.io/github/license/mashape/apistatus.svg)](LICENSE)
 
 ## Introduction
-
-The original implementation comes from [qqwweee/keras-yolo3](https://github.com/qqwweee/keras-yolo3).
-
-<!-- Our YOLO3 detects 5 different micro-mobility vehicles from the images captured by the [LGSVL Automotive Simulator Micromobility version](https://github.com/deepaktalwardt/lgsvl_simulator_micromobility). The vehicles we are interested in detecting include scooters, hoverboards, skateboards, segways, and one-wheels. -->
-
 ## Quick Start
 
 1. Download pretrained weights [here](https://www.dropbox.com/s/a44ly3zd6bzmssw/2d-final-weights-keras-yolo3.h5?dl=0).
@@ -38,16 +38,20 @@ optional arguments:
 ```
 
 
-## Data collection
+## Data Collection
+For this project, we collected data from two different versions of LGSVL Automotive Simulator by writing ROS Nodes and connecting to the simulators over ROS Bridge. For more details on how the LGSVL Simulator works please visit the links below
 
-## Inference
+#### [LGSVL 2019.05 Release (Sim1)](https://github.com/lgsvl/simulator-2019.05-obsolete)
+#### [LGSVL 2019.10 Release (Sim2)](https://github.com/lgsvl/simulator)
 
-## Evaluation
+The ROS packages written for collected data from the above mentioned simulators are provided in ??[]() folder. If you wish to run them, please copy the packages into your catkin workspace and run `catkin_make` to build these packages.
 
+If you wish to download the collected datasets please download the zip files linked below
 
+#### [LGVSL Sim1 Dataset]()
+#### [LGSVL Sim2 Dataset]()
 
-
-
+These zip files contain the front camera 2D images as well as the ground truth information in a single CSV file.
 
 ### Extracting waymo datasets into GCP buckets
 1. Download the waymo dataset files(first 3 only for images training) [here](https://waymo.com/open/download/#)
@@ -126,6 +130,10 @@ ROS nodes that were created for this project are available [here](https://github
 * [Dataset 1](https://www.dropbox.com/s/9cvsmraio6q6v0d/large_dataset_1.zip?dl=0)
 
 * [Dataset 2](https://www.dropbox.com/s/kt6hwfsa95v4hck/large_dataset_2.zip?dl=0)
+
+## Inference
+
+## Evaluation
 
 ## Results
 
