@@ -155,6 +155,6 @@ This section shows sample images from inference of our trained models on our tes
 
 ## Contributors
 * **Deepak Talwar** - (https://github.com/deepaktalwardt)
-* **Sachin Guruswamy** - (https://github.com/swdev1202)
+* **Sachin Guruswamy** - (https://github.com/saching13)
 * **Naveen Ravipati** - (https://github.com/Naveen-Ravipati)
 ### This repository was developed for CMPE 256 - Large Scale Analytics at San Jose State University in Fall 2019.
